@@ -1,0 +1,16 @@
+﻿  pch.cpp
+  CaesarSource.cpp
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarSource.cpp(9,6): warning C4273: 'encryptText': inconsistent dll linkage
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarCipher.h(9,34): message : see previous definition of 'encryptText'
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarSource.cpp(12,9): warning C4297: 'encryptText': function assumed not to throw an exception but does
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarSource.cpp(12,9): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarSource.cpp(33,6): warning C4273: 'decryptText': inconsistent dll linkage
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarCipher.h(11,34): message : see previous definition of 'decryptText'
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarSource.cpp(36,9): warning C4297: 'decryptText': function assumed not to throw an exception but does
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarSource.cpp(36,9): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarSource.cpp(56,6): warning C4273: 'printText': inconsistent dll linkage
+C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\CaesarCipher.h(13,34): message : see previous definition of 'printText'
+  dllmain.cpp
+  Generating Code...
+     Creating library C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\x64\Debug\CaesarsCipher.lib and object C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\x64\Debug\CaesarsCipher.exp
+  CaesarsCipher.vcxproj -> C:\Users\markh\OneDrive\Documents\Gamer repositories\CaesarsCipher\x64\Debug\CaesarsCipher.dll
