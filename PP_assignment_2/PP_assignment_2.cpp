@@ -3,6 +3,8 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <stdexcept>
+#include <windows.h>
 
 class TextEditor {
 public:
@@ -75,6 +77,110 @@ public:
         else {
             std::cerr << "Error opening file or file doesn't exist.\n";
         }
+    }
+};
+
+class IReader
+{
+public:
+    virtual ~IReader() {}
+    virtual std::vector<std::vector<std::string>> Read(const std::string& filepath) = 0;
+};
+
+class FileReader : public IReader
+{
+public:
+    std::vector<std::vector<std::string>> Read(const std::string& filepath) override
+    {
+        std::ifstream inFile(filepath);
+        if (!inFile.is_open())
+        {
+            throw std::runtime_error("Error: File could not be opened!");
+        }
+
+        std::vector<std::vector<std::string>> text;
+        std::string line;
+
+        while (getline(inFile, line))
+        {
+            std::vector<std::string> row;
+            std::string word;
+            size_t pos = 0;
+
+            while ((pos = line.find(' ')) != std::string::npos)
+            {
+                word = line.substr(0, pos);
+                row.push_back(word);
+                line.erase(0, pos + 1);
+            }
+            row.push_back(line);
+
+            text.push_back(row);
+        }
+
+        inFile.close();
+        return text;
+    }
+};
+
+class CaesarCipher {
+private:
+    HINSTANCE handle;
+
+    typedef void(*encryptTextFunc)(char*, int);
+    typedef void(*decryptTextFunc)(char*, int);
+    typedef void(*printTextFunc)(char*);
+
+    encryptTextFunc encrypt_ptr;
+    decryptTextFunc decrypt_ptr;
+    printTextFunc print_ptr;
+
+public:
+    CaesarCipher() {
+        handle = nullptr;
+        encrypt_ptr = nullptr;
+        decrypt_ptr = nullptr;
+        print_ptr = nullptr;
+    }
+
+    CaesarCipher(const std::wstring& path) {
+        handle = LoadLibrary(path.c_str());
+        if (!handle) {
+            throw std::runtime_error("Failed to load the DLL");
+        }
+
+        encrypt_ptr = (encryptTextFunc)GetProcAddress(handle, "encryptText");
+        if (!encrypt_ptr) {
+            throw std::runtime_error("Failed to get the encryptText function");
+        }
+
+        decrypt_ptr = (decryptTextFunc)GetProcAddress(handle, "decryptText");
+        if (!decrypt_ptr) {
+            throw std::runtime_error("Failed to get the decryptText function");
+        }
+
+        print_ptr = (printTextFunc)GetProcAddress(handle, "printText");
+        if (!print_ptr) {
+            throw std::runtime_error("Failed to get the printText function");
+        }
+    }
+
+    ~CaesarCipher() {
+        if (handle) {
+            FreeLibrary(handle);
+        }
+    }
+
+    void encrypt(char* text, int shift) {
+        encrypt_ptr(text, shift);
+    }
+
+    void decrypt(char* text, int shift) {
+        decrypt_ptr(text, shift);
+    }
+
+    void print(char* text) {
+        print_ptr(text);
     }
 };
 
@@ -201,11 +307,19 @@ public:
     std::string textInput;
     std::vector<size_t> indexSpecifier;
     std::string filename;
+    CaesarCipher CaesarCipher;
 
     int cmdType;
 
-    Program() : userText(1), exchangeBuffer(""), textInput(""), filename(""), cmdType(0) {
-    }
+    Program()
+      : userText(1),
+        exchangeBuffer(""),
+        textInput(""),
+        filename(""),
+        cmdType(0),
+        CaesarCipher(TEXT("C:\\Users\\Gamer\\Documents\\gamer directories\\university stuff\\PP_assignment_4\\CaesarsCipher\\Debug\\CaesarsCipher.dll")){
+    }   //desktop path //C:\\Users\\Gamer\\Documents\\gamer directories\\university stuff\\PP_assignment_4\\CaesarsCipher\\Debug\\CaesarsCipher.dll
+
 
     Program(int initialSize, const std::string& inputText, const std::vector<size_t>& indices, const std::string& file, int commandType)
         : userText(initialSize), exchangeBuffer(""), textInput(inputText), indexSpecifier(indices), filename(file), cmdType(commandType) {
