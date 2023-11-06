@@ -7,7 +7,9 @@
 
 
 void encryptText(char* rawText, int key) {
-    int range = 128;
+    int start = 32;
+    int end = 126;
+    int range = end - start + 1;
 
     key = (key % range + range) % range;
 
@@ -16,14 +18,20 @@ void encryptText(char* rawText, int key) {
         if (rawText[i] == ' ' || rawText[i] == '\n') {
 
             continue;
+
         }
 
-        rawText[i] = (rawText[i] + key) % range;
+        int charToInt = static_cast<int>(rawText[i]);
+
+        rawText[i] = static_cast<char>(start + (charToInt - start + key) % range);
+        //rawText[i] = (rawText[i] + key) % range;
     }
 }
 
 void decryptText(char* encryptedText, int key) {
-    int range = 128;
+    int start = 32;
+    int end = 126;
+    int range = end - start + 1;
 
     key = (key % range + range) % range;
 
@@ -32,9 +40,13 @@ void decryptText(char* encryptedText, int key) {
         if (encryptedText[i] == ' ' || encryptedText[i] == '\n') {
 
             continue;
+
         }
 
-        encryptedText[i] = (encryptedText[i] - key + range) % range;
+        int charToInt = static_cast<int>(encryptedText[i]);
+
+        encryptedText[i] = static_cast<char>(start + (charToInt - start - key + range) % range);
+        //encryptedText[i] = (encryptedText[i] - key + range) % range;
     }
 }
 

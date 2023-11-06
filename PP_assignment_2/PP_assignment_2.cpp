@@ -7,8 +7,13 @@
 #include <windows.h>
 
 class TextEditor {
-public:
     std::vector<std::vector<std::string>> userTextD;
+public:
+
+    std::vector<std::vector<std::string>>& GetUserTextD()
+    {
+        return userTextD;
+    }
 
     TextEditor(int initialSize) {
         userTextD.resize(initialSize);
@@ -38,6 +43,56 @@ public:
     }
 };
 
+
+class Gamer
+{
+public:
+    virtual ~Gamer() {}
+    virtual void Read(const std::string& filepath) = 0;
+    virtual void Write(const std::string& filepath) = 0;
+
+};
+
+class FileGaming : public Gamer {
+public:
+     void Write(const std::string& fileName, std::vector<std::vector<std::string>>& userText) override {
+        std::ofstream file(fileName);
+
+        if (file.is_open()) {
+            for (const std::vector<std::string>& line : userText)
+            {
+
+                if (!line.empty()) {
+                    for (const std::string& words : line)
+                    {
+                        file << words;
+                    }
+                    file << '\n';
+                }
+            }
+            std::cout << "Text written to file successfully.\n";
+        }
+        else {
+            std::cerr << "Error opening file.\n";
+        }
+    }
+
+    void Read(const std::string& fileName, std::vector<std::vector<std::string>>& userText) override {
+        std::ifstream file(fileName);
+        if (file.is_open()) {
+            std::string line;
+            while (std::getline(file, line))
+            {
+                userText.push_back({ line });
+            }
+            std::cout << "File read successfully.\n";
+        }
+        else {
+            std::cerr << "Error opening file or file doesn't exist.\n";
+        }
+    }
+};
+
 class FileManager {
 public:
     //these can be used for undo/redo commands
@@ -55,7 +110,6 @@ public:
                     }
                     file << '\n';
                 }
-                //file << '\n';
             }
             std::cout << "Text written to file successfully.\n";
         }
@@ -77,49 +131,6 @@ public:
         else {
             std::cerr << "Error opening file or file doesn't exist.\n";
         }
-    }
-};
-
-class IReader
-{
-public:
-    virtual ~IReader() {}
-    virtual std::vector<std::vector<std::string>> Read(const std::string& filepath) = 0;
-};
-
-class FileReader : public IReader
-{
-public:
-    std::vector<std::vector<std::string>> Read(const std::string& filepath) override
-    {
-        std::ifstream inFile(filepath);
-        if (!inFile.is_open())
-        {
-            throw std::runtime_error("Error: File could not be opened!");
-        }
-
-        std::vector<std::vector<std::string>> text;
-        std::string line;
-
-        while (getline(inFile, line))
-        {
-            std::vector<std::string> row;
-            std::string word;
-            size_t pos = 0;
-
-            while ((pos = line.find(' ')) != std::string::npos)
-            {
-                word = line.substr(0, pos);
-                row.push_back(word);
-                line.erase(0, pos + 1);
-            }
-            row.push_back(line);
-
-            text.push_back(row);
-        }
-
-        inFile.close();
-        return text;
     }
 };
 
@@ -171,12 +182,12 @@ public:
         }
     }
 
-    void encrypt(char* text, int shift) {
-        encrypt_ptr(text, shift);
+    void encrypt(char* text, int key) {
+        encrypt_ptr(text, key);
     }
 
-    void decrypt(char* text, int shift) {
-        decrypt_ptr(text, shift);
+    void decrypt(char* text, int key) {
+        decrypt_ptr(text, key);
     }
 
     void print(char* text) {
@@ -186,8 +197,6 @@ public:
 
 class LineEditor {
 public:
-    static std::string exchangeBuffer;  //the problem lies within this variable. Get a linker error when I try to use it.
-
     static std::vector<size_t> splitIntoVector(const std::string& userInput) {
 
         std::vector<size_t> tokens;
@@ -328,7 +337,7 @@ public:
     void run() {
         while (1) {
 
-            std::cout << "\nChoose a command (Line: " << userText.userTextD.size() << "): ";
+            std::cout << "\nChoose a command (Line: " << userText.GetUserTextD().size() << "): ";
             std::cin >> cmdType;
 
             switch (cmdType)
@@ -363,7 +372,7 @@ public:
                 std::cout << "\nInput file name: ";
                 std::getline(std::cin, filename);
 
-                FileManager::writeToFile(filename, userText.userTextD);
+                FileManager::writeToFile(filename, userText.GetUserTextD());
 
                 std::cout << "\ntext written to file.";
 
@@ -374,7 +383,7 @@ public:
                 std::cout << "\nInput file name: ";
                 std::getline(std::cin, filename);
 
-                FileManager::readFromFile(filename, userText.userTextD);
+                FileManager::readFromFile(filename, userText.GetUserTextD());
 
                 std::cout << "\ntext read from file.";
 
@@ -469,4 +478,6 @@ int main()
     Program program;
 
     program.run();
+
+    return 0;
 }
