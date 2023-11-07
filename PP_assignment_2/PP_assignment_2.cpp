@@ -7,8 +7,9 @@
 #include <windows.h>
 
 class TextEditor {
-    std::vector<std::vector<std::string>> userTextD;
+    //std::vector<std::vector<std::string>> userTextD;
 public:
+    std::vector<std::vector<std::string>> userTextD;
 
     std::vector<std::vector<std::string>>& GetUserTextD()
     {
@@ -44,19 +45,19 @@ public:
 };
 
 
-class Gamer
+class IDemo
 {
 public:
-    virtual ~Gamer() {}
-    virtual void Read(const std::string& filepath) = 0;
-    virtual void Write(const std::string& filepath) = 0;
+    virtual ~IDemo() {}
+    virtual void Read(const std::string& filepath, std::vector<std::vector<std::string>>& userText) = 0;
+    virtual void Write(const std::string& filepath, std::vector<std::vector<std::string>>& userText) = 0;
 
 };
 
-class FileGaming : public Gamer {
+class Files : public IDemo {
 public:
-     void Write(const std::string& fileName, std::vector<std::vector<std::string>>& userText) override {
-        std::ofstream file(fileName);
+     void Write(const std::string& filepath, std::vector<std::vector<std::string>>& userText) override {
+        std::ofstream file(filepath);
 
         if (file.is_open()) {
             for (const std::vector<std::string>& line : userText)
@@ -77,9 +78,11 @@ public:
         }
     }
 
-    void Read(const std::string& fileName, std::vector<std::vector<std::string>>& userText) override {
-        std::ifstream file(fileName);
+    void Read(const std::string& filepath, std::vector<std::vector<std::string>>& userText) override {
+
+        std::ifstream file(filepath);
         if (file.is_open()) {
+
             std::string line;
             while (std::getline(file, line))
             {
@@ -308,15 +311,24 @@ public:
     }
 };
 
+
+//laptop
+//PC C:\\Users\\Gamer\\Documents\\gamer directories\\university stuff\\PP_assignment_4\\CaesarsCipher\\Debug\\CaesarsCipher.dll
 class Program {
 public:
     TextEditor userText;
+    //TextEditor encryptedText;
 
     std::string exchangeBuffer;
     std::string textInput;
     std::vector<size_t> indexSpecifier;
     std::string filename;
+
     CaesarCipher CaesarCipher;
+    IDemo* fileManager;
+
+    std::string filepaths[2];
+    int key;
 
     int cmdType;
 
@@ -326,12 +338,17 @@ public:
         textInput(""),
         filename(""),
         cmdType(0),
-        CaesarCipher(TEXT("C:\\Users\\Gamer\\Documents\\gamer directories\\university stuff\\PP_assignment_4\\CaesarsCipher\\Debug\\CaesarsCipher.dll")){
-    }   //desktop path //C:\\Users\\Gamer\\Documents\\gamer directories\\university stuff\\PP_assignment_4\\CaesarsCipher\\Debug\\CaesarsCipher.dll
+        CaesarCipher(TEXT("C:\\Users\\Gamer\\Documents\\gamer directories\\university stuff\\PP_assignment_4\\CaesarsCipher\\Debug\\CaesarsCipher.dll")),
+        fileManager(nullptr),
+        filepaths{},
+        key(0)
+    {
+        fileManager = new Files();
+    }
 
 
     Program(int initialSize, const std::string& inputText, const std::vector<size_t>& indices, const std::string& file, int commandType)
-        : userText(initialSize), exchangeBuffer(""), textInput(inputText), indexSpecifier(indices), filename(file), cmdType(commandType) {
+        : userText(initialSize), exchangeBuffer(""), textInput(inputText), indexSpecifier(indices), filename(file), cmdType(commandType), fileManager(), filepaths{}, key(0) {
     }
 
     void run() {
@@ -460,6 +477,63 @@ public:
                 break;
             case 15:
                 //system('cls');
+                break;
+            case 20:
+                //encrypt   //C:/Users/Gamer/Documents/gamer directories/university stuff/PP_assignment_4/PP_assignment_2/test.txt
+
+                std::cin.ignore();
+                std::cout << "\nEnter input file path: ";
+                std::getline(std::cin, filepaths[0]);
+
+                std::cin.ignore();
+                std::cout << "\nEnter outnput file path: ";
+                std::getline(std::cin, filepaths[1]);
+
+                std::cin.ignore();
+                std::cout << "\nEnter key: ";
+                std::cin >> key;
+
+                fileManager->Read(filepaths[0], userText.userTextD);
+
+                for (auto& line : userText.userTextD) {
+                    if (!line.empty()) {
+                        char* text = &line[0][0];
+                        CaesarCipher.encrypt(text, key);
+                    }
+                }
+
+                fileManager->Write(filepaths[1], userText.userTextD);
+
+                break;
+            case 21:
+                //decrypt
+
+                std::cin.ignore();
+                std::cout << "\nEnter input file path: ";
+                std::getline(std::cin, filepaths[0]);
+
+                std::cin.ignore();
+                std::cout << "\nEnter outnput file path: ";
+                std::getline(std::cin, filepaths[1]);
+
+                std::cin.ignore();
+                std::cout << "\nEnter key: ";
+                std::cin >> key;
+
+                fileManager->Read(filepaths[0], userText.userTextD);
+
+                for (auto& line : userText.userTextD) {
+                    if (!line.empty()) {
+                        char* text = &line[0][0];
+                        CaesarCipher.decrypt(text, key);
+                    }
+                }
+
+                fileManager->Write(filepaths[1], userText.userTextD);
+
+                break;
+            case 22:
+                //secret mode
                 break;
             case 99:
                 exit(0);
