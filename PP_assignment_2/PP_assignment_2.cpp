@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include <windows.h>
+#include <random>
 
 class TextEditor {
     //std::vector<std::vector<std::string>> userTextD;
@@ -41,6 +42,10 @@ public:
 
     void addNewline() {
         userTextD.push_back({});
+    }
+
+    void clearText() {
+        userTextD.clear();
     }
 };
 
@@ -317,7 +322,6 @@ public:
 class Program {
 public:
     TextEditor userText;
-    //TextEditor encryptedText;
 
     std::string exchangeBuffer;
     std::string textInput;
@@ -520,10 +524,12 @@ public:
                 std::cout << "\nEnter key: ";
                 std::cin >> key;
 
+                userText.clearText();
                 fileManager->Read(filepaths[0], userText.userTextD);
 
                 for (auto& line : userText.userTextD) {
                     if (!line.empty()) {
+
                         char* text = &line[0][0];
                         CaesarCipher.decrypt(text, key);
                     }
@@ -532,9 +538,38 @@ public:
                 fileManager->Write(filepaths[1], userText.userTextD);
 
                 break;
-            case 22:
-                //secret mode
+            case 22: { //secret mode
+
+                std::random_device rd;
+
+                std::mt19937 gen(rd());
+                std::uniform_int_distribution<> distrib(0, 100000);
+
+                int randKey = distrib(gen);
+
+                std::cin.ignore();
+                std::cout << "\nEnter input file path: ";
+                std::getline(std::cin, filepaths[0]);
+
+                std::cin.ignore();
+                std::cout << "\nEnter outnput file path: ";
+                std::getline(std::cin, filepaths[1]);
+
+                userText.clearText();
+                fileManager->Read(filepaths[0], userText.userTextD);
+
+                for (auto& line : userText.userTextD) {
+                    if (!line.empty()) {
+
+                        char* text = &line[0][0];
+                        CaesarCipher.encrypt(text, randKey);
+                    }
+                }
+
+                fileManager->Write(filepaths[1], userText.userTextD);
+
                 break;
+            }
             case 99:
                 exit(0);
                 break;

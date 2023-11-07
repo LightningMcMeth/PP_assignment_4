@@ -15,18 +15,12 @@ void encryptText(char* rawText, int key) {
 
     for (size_t i = 0; rawText[i] != '\0'; i++) {
 
-        if (rawText[i] == ' ' || rawText[i] == '\n') {
-
-            continue;
-
-        }
-
         int charToInt = static_cast<int>(rawText[i]);
 
         rawText[i] = static_cast<char>(start + (charToInt - start + key) % range);
-        //rawText[i] = (rawText[i] + key) % range;
     }
 }
+
 
 void decryptText(char* encryptedText, int key) {
     int start = 32;
@@ -37,22 +31,20 @@ void decryptText(char* encryptedText, int key) {
 
     for (size_t i = 0; encryptedText[i] != '\0'; i++) {
 
-        if (encryptedText[i] == ' ' || encryptedText[i] == '\n') {
-
-            continue;
-
-        }
-
         int charToInt = static_cast<int>(encryptedText[i]);
+        int shifted = charToInt - key;
 
-        encryptedText[i] = static_cast<char>(start + (charToInt - start - key + range) % range);
-        //encryptedText[i] = (encryptedText[i] - key + range) % range;
+        if (shifted < start) {
+            shifted += range;
+        }
+        encryptedText[i] = static_cast<char>(start + (shifted - start) % range);
     }
 }
 
+
 void printText(char* encryptedText) {
 
-    for (size_t i = 0; encryptedText[i] != '\0'; i++)
+    for (int i = 0; encryptedText[i] != '\0'; i++)
     {
         std::cout << encryptedText[i];
     }
